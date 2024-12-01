@@ -17,4 +17,4 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::get('users', UserController::class);
+Route::get('users', UserController::class)->name('users');

@@ -13,16 +13,20 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Component implements HasForms, HasTable
 {
     use InteractsWithTable;
     use InteractsWithForms;
 
+    public $roles=[];
 
-
-    public function mount() {}
+    public function mount() {
+        $this->roles = Role::orderBy('name')->pluck('name','id');
+    }
 
     public function table(Table $table): Table
     {
@@ -44,6 +48,10 @@ class UserController extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('name')->label('Nombre')->sortable()->searchable(),
                 TextColumn::make('email'),
+                TextColumn::make('roles')
+                ->formatStateUsing(function($record){
+                    return $record->getRoleNames()->join(', ');
+                }),
             ])
             ->actions([
                 EditAction::make()
@@ -58,6 +66,13 @@ class UserController extends Component implements HasForms, HasTable
                     ])->button('Editar'),
                 DeleteAction::make(),
             ])
+            ->filters([
+                SelectFilter::make('Usuarios con Rol')
+                ->relationship('roles', 'name')
+                ->options(
+                    $this->roles
+                )
+            ])
             ->persistSortInSession()
             ->persistSearchInSession()
             ->emptyStateDescription('No hay usuarios')
@@ -66,6 +81,7 @@ class UserController extends Component implements HasForms, HasTable
     }
     public function render()
     {
+
         return view('livewire.user-controller');
     }
 }
