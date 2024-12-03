@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\EditAction;
 use Livewire\Component;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -22,10 +23,11 @@ class UserController extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
-    public $roles=[];
+    public $roles = [];
 
-    public function mount() {
-        $this->roles = Role::orderBy('name')->pluck('name','id');
+    public function mount()
+    {
+        $this->roles = Role::orderBy('name')->pluck('name', 'id');
     }
 
     public function table(Table $table): Table
@@ -33,10 +35,26 @@ class UserController extends Component implements HasForms, HasTable
         return $table
             ->query(User::query())
             ->headerActions([
-                CreateAction::make()->label('Agregar')
+                CreateAction::make()
+                    ->label('Agregar')
+                    ->using(function (array $data): User {
+                        $user = User::create([
+                            'name' => $data['name'],
+                            'email' => $data['email'],
+                            'password' => bcrypt($data['password']),
+                        ]);
+                        if (!empty($data['roles'])) {
+                            $user->assignRole((int) $data['roles']);
+                        }
+
+                        return $user;
+                    })
                     ->form([
                         TextInput::make('name')->rules(['required']),
                         TextInput::make('email')->rules(['required', 'email'])->unique(),
+                        Select::make('roles')
+                            ->options($this->roles),
+
                         TextInput::make('password')
                             ->rules(['required', 'confirmed'])
                             ->password()->revealable(),
@@ -44,20 +62,35 @@ class UserController extends Component implements HasForms, HasTable
                             ->rules(['required'])
                             ->password()->revealable(),
                     ]),
+
             ])
             ->columns([
                 TextColumn::make('name')->label('Nombre')->sortable()->searchable(),
                 TextColumn::make('email'),
-                TextColumn::make('roles')
-                ->formatStateUsing(function($record){
-                    return $record->getRoleNames()->join(', ');
-                }),
+                TextColumn::make('roles.name'),
             ])
             ->actions([
                 EditAction::make()
+                    ->using(function (User $record, array $data): User {
+                        if (!empty($data['password'])) {
+                            $data['password'] = bcrypt($data['password']);
+                        } else {
+                            unset($data['password']); // No actualizar la contraseña si no se proporciona
+                        }
+
+                        $record->update($data);
+
+                        if (!empty($data['roles'])) {
+                            $record->syncRoles((int)$data['roles']);
+                        }
+
+                        return $record;
+                    })
                     ->form([
                         TextInput::make('name')->rules(['required']),
                         TextInput::make('email')->rules(['required', 'email'])->unique(ignoreRecord: true),
+                        Select::make('roles')
+                            ->options($this->roles),
                         TextInput::make('password')
                             ->password()->revealable()
                             ->rules(['confirmed']),
@@ -68,10 +101,10 @@ class UserController extends Component implements HasForms, HasTable
             ])
             ->filters([
                 SelectFilter::make('Usuarios con Rol')
-                ->relationship('roles', 'name')
-                ->options(
-                    $this->roles
-                )
+                    ->relationship('roles', 'name')
+                    ->options(
+                        $this->roles
+                    )
             ])
             ->persistSortInSession()
             ->persistSearchInSession()
