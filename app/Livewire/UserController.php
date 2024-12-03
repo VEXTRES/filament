@@ -21,6 +21,7 @@ use Spatie\Permission\Models\Role;
 
 use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Tables\Actions\ExportAction;
 
 class UserController extends Component implements HasForms, HasTable, HasActions
 {
@@ -40,6 +41,8 @@ class UserController extends Component implements HasForms, HasTable, HasActions
         return $table
             ->query(User::query())
             ->headerActions([
+                ExportAction::make()
+                    ->exporter(User::class),
                 CreateAction::make()
                     ->label('Agregar')
                     ->using(function (array $data): User {
@@ -72,7 +75,7 @@ class UserController extends Component implements HasForms, HasTable, HasActions
                             ->success()
                             ->title('User registered')
                             ->body('The user has been created successfully.'),
-                    ),
+                    )
 
             ])
             ->columns([
@@ -82,6 +85,12 @@ class UserController extends Component implements HasForms, HasTable, HasActions
             ])
             ->actions([
                 EditAction::make()
+                    ->successNotification(
+                        Notification::make()
+                            ->success()
+                            ->title('User Edited')
+                            ->body('The user has been edited successfully.'),
+                    )
                     ->using(function (User $record, array $data): User {
                         if (!empty($data['password'])) {
                             $data['password'] = bcrypt($data['password']);
@@ -108,7 +117,13 @@ class UserController extends Component implements HasForms, HasTable, HasActions
                         TextInput::make('password_confirmation')
                             ->password()->revealable(),
                     ])->button('Editar'),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->successNotification(
+                        Notification::make()
+                            ->success()
+                            ->title('User deleted')
+                            ->body('The user has been deleted successfully.'),
+                    ),
             ])
             ->filters([
                 SelectFilter::make('Usuarios con Rol')
