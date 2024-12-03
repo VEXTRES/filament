@@ -13,6 +13,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -36,6 +37,12 @@ class UserController extends Component implements HasForms, HasTable
             ->query(User::query())
             ->headerActions([
                 CreateAction::make()
+                    ->successNotification(
+                        Notification::make()
+                            ->success()
+                            ->title('User registered')
+                            ->body('The user has been created successfully.'),
+                    )
                     ->label('Agregar')
                     ->using(function (array $data): User {
                         $user = User::create([
