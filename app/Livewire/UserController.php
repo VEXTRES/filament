@@ -19,8 +19,12 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
 
-class UserController extends Component implements HasForms, HasTable
+use Filament\Actions\Contracts\HasActions;
+use Filament\Actions\Concerns\InteractsWithActions;
+
+class UserController extends Component implements HasForms, HasTable, HasActions
 {
+    use InteractsWithActions;
     use InteractsWithTable;
     use InteractsWithForms;
 
@@ -37,12 +41,6 @@ class UserController extends Component implements HasForms, HasTable
             ->query(User::query())
             ->headerActions([
                 CreateAction::make()
-                    ->successNotification(
-                        Notification::make()
-                            ->success()
-                            ->title('User registered')
-                            ->body('The user has been created successfully.'),
-                    )
                     ->label('Agregar')
                     ->using(function (array $data): User {
                         $user = User::create([
@@ -68,7 +66,13 @@ class UserController extends Component implements HasForms, HasTable
                         TextInput::make('password_confirmation')
                             ->rules(['required'])
                             ->password()->revealable(),
-                    ]),
+                    ])
+                    ->successNotification(
+                        Notification::make()
+                            ->success()
+                            ->title('User registered')
+                            ->body('The user has been created successfully.'),
+                    ),
 
             ])
             ->columns([

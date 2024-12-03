@@ -12,6 +12,8 @@
 </head>
 
 <body>
+    @livewire('notifications')
+
     {{ $slot }}
 
     @filamentScripts
