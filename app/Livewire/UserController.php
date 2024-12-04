@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Filament\Exports\UserExporter;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\EditAction;
@@ -42,7 +43,7 @@ class UserController extends Component implements HasForms, HasTable, HasActions
             ->query(User::query())
             ->headerActions([
                 ExportAction::make()
-                    ->exporter(User::class),
+                    ->exporter(UserExporter::class),
                 CreateAction::make()
                     ->label('Agregar')
                     ->using(function (array $data): User {

@@ -13,6 +13,9 @@
 
 <body>
     @livewire('notifications')
+    @livewire('database-notifications')
+
+
 
     {{ $slot }}
 
