@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
         });
 
 
+        
         User::factory(5000)->create();
         User::factory()->create([
             'name' => 'Uriel',
