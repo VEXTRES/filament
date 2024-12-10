@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // Crear usuarios y asignarles roles aleatorios
-        User::factory(10000)->create()->each(function ($user) use ($roles) {
+        User::factory(5000)->create()->each(function ($user) use ($roles) {
             // Asignar un rol aleatorio
             $user->assignRole($roles[array_rand($roles)]);
         });
