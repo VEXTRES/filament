@@ -7,7 +7,8 @@
 
     <title>{{ $title ?? 'Page Title' }}</title>
     @filamentStyles
-    @vite('resources/css/app.css')
+    @filamentScripts
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
 
@@ -18,9 +19,6 @@
 
 
     {{ $slot }}
-
-    @filamentScripts
-    @vite('resources/js/app.js')
 </body>
 
 </html>
