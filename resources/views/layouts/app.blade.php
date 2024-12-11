@@ -12,9 +12,6 @@
     <link href="https://fonts.bunny.net" rel="preconnect">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    @filamentStyles
-    @filamentScripts
-
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -27,8 +24,6 @@
 
     <div class="min-h-screen bg-gray-100">
         @livewire('navigation-menu')
-        @livewire('notifications')
-        @livewire('database-notifications')
 
         <!-- Page Heading -->
         @if (isset($header))
